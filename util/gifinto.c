@@ -70,9 +70,10 @@ mkstemp(char *tpl)
 ******************************************************************************/
 int main(int argc, char **argv)
 {
+    int FD;
     int	NumFiles;
     bool Error, MinSizeFlag = false, HelpFlag = false;
-    char **FileName = NULL, FoutTmpName[STRLEN], FullPath[STRLEN], *p;
+    char **FileName = NULL, FoutTmpName[STRLEN+1], FullPath[STRLEN+1], *p;
     FILE *Fin, *Fout;
 
     if ((Error = GAGetArgs(argc, argv, CtrlStr, &GifNoisyPrint,
@@ -126,7 +127,6 @@ int main(int argc, char **argv)
     /* then add a name for the tempfile */
     if ( (strlen(FoutTmpName) + strlen(DEFAULT_TMP_NAME))  > STRLEN-1 ) GIF_EXIT("Filename too long.");
     strcat(FoutTmpName, DEFAULT_TMP_NAME);
-    int FD;
 #ifdef _WIN32
     char *tmpFN = _mktemp(FoutTmpName);
     if (tmpFN)
@@ -160,7 +160,8 @@ int main(int argc, char **argv)
 	fclose(Fout);
 	unlink(*FileName);
 	if (rename(FoutTmpName, *FileName) != 0) {
-	    char DefaultName[STRLEN];
+	    char DefaultName[STRLEN+1];
+	    memset(DefaultName, '\0', sizeof(DefaultName));
 	    if ( (strlen(FullPath) + strlen(DEFAULT_OUT_NAME)) > STRLEN-1 ) GIF_EXIT("Filename too long.");
 	    strncpy(DefaultName, FullPath, STRLEN);
 	    // cppcheck-suppress uninitstring

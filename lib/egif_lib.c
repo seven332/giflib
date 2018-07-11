@@ -44,6 +44,13 @@ static int EGifBufferedOutput(GifFileType * GifFile, GifByteType * Buf,
 #define LOBYTE(x)	((x) & 0xff)
 #define HIBYTE(x)	(((x) >> 8) & 0xff)
 
+#ifndef S_IREAD
+#define S_IREAD S_IRUSR
+#endif
+
+#ifndef S_IWRITE
+#define S_IWRITE S_IWUSR
+#endif
 /******************************************************************************
  Open a new GIF file for write, specified by name. If TestExistance then
  if the file exists this routines fails (returns NULL).
@@ -103,6 +110,7 @@ EGifOpenFileHandle(const int FileHandle, int *Error)
 	    *Error = E_GIF_ERR_NOT_ENOUGH_MEM;
         return NULL;
     }
+    /*@i1@*/memset(Private, '\0', sizeof(GifFilePrivateType));
     if ((Private->HashTable = _InitHashTable()) == NULL) {
         free(GifFile);
         free(Private);
@@ -121,6 +129,7 @@ EGifOpenFileHandle(const int FileHandle, int *Error)
     Private->FileHandle = FileHandle;
     Private->File = f;
     Private->FileState = FILE_STATE_WRITE;
+    Private->gif89 = false;
 
     Private->Write = (OutputFunc) 0;    /* No user write routine (MRB) */
     GifFile->UserData = (void *)NULL;    /* No user write handle (MRB) */
@@ -156,6 +165,8 @@ EGifOpen(void *userData, OutputFunc writeFunc, int *Error)
 	    *Error = E_GIF_ERR_NOT_ENOUGH_MEM;
         return NULL;
     }
+
+    memset(Private, '\0', sizeof(GifFilePrivateType));
 
     Private->HashTable = _InitHashTable();
     if (Private->HashTable == NULL) {
