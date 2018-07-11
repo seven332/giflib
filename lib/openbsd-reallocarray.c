@@ -19,7 +19,6 @@
 #include <errno.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include <limits.h>
 
 #ifndef SIZE_MAX
     #define SIZE_MAX     UINTPTR_MAX
